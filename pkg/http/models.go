@@ -7,6 +7,8 @@ const (
 
 // errResponse is a wrapper for returning JSON error messages.
 type errResponse struct {
+	// Message contains a general error description.
 	Message string `json:"message"`
-	Details any    `json:"details,omitempty"`
+	// Details contains further (optional) information about the error.
+	Details any `json:"details,omitempty"`
 }

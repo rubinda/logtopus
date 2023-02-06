@@ -30,18 +30,24 @@ const (
 
 // Configuration contains required parameters to start a HTTP(S) server.
 type Configuration struct {
-	DB      *influxdb.Client
+	// DB is an InfluxDB client.
+	DB *influxdb.Client
+	// Address contains the IP address and port the HTTP(S) server  listens on
 	Address string
-
-	JWTKeyPath    string
+	// JWTKeyPath is a path to a private KEY (Ed25519) in PEM format.
+	JWTKeyPath string
+	// JWTKeyPath is a path to the public key pair.
 	JWTPubKeyPath string
 }
 
 // Server contains methods to handle HTTP requests.
 type Server struct {
+	// instance is the standard http implementation of a http server.
 	instance *http.Server
-	db       *influxdb.Client
-	jwtAuth  *JWTAuthority
+	// db contains methods for database interaction.
+	db *influxdb.Client
+	// jwtAuth contains methods for token (authentication) management.
+	jwtAuth *JWTAuthority
 }
 
 // NewServer creates a new HTTP(S) server with the given parameters.
@@ -63,13 +69,13 @@ func NewServer(c Configuration, jwtAuth *JWTAuthority) *Server {
 // Start runs the server instance to listen for incoming connections. Waits for CTRL-C to initiate a graceful shutdown.
 func (server *Server) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
+	// Listens for shutdown signals (CTRL-C)
 	go func() {
 		osSignals := make(chan os.Signal, 1)
 		signal.Notify(osSignals, syscall.SIGINT, syscall.SIGTERM)
 		<-osSignals
 		cancel()
 	}()
-
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		log.Printf("Server listening on http://%s\n", server.instance.Addr)
@@ -110,7 +116,7 @@ func (server *Server) authHandler(w http.ResponseWriter, r *http.Request) {
 			jsonResponse(w, http.StatusUnauthorized, errResponse{"Invalid username / password combination", nil})
 			return
 		}
-		token, err := server.jwtAuth.issueToken(loginInfo.User)
+		token, err := server.jwtAuth.IssueToken(loginInfo.User)
 		if err != nil {
 			jsonResponse(w, http.StatusInternalServerError, errResponse{"An error occurred while issuing your token. Please contact an administrator.", nil})
 			return

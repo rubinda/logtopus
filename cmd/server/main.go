@@ -10,10 +10,12 @@ import (
 )
 
 const (
+	// apiServerURL defines the port the HTTP server listens on
 	apiServerURL string = "0.0.0.0:5000"
 )
 
 func main() {
+	// Optionally, an .env file can be given as the first parameter
 	if len(os.Args) == 2 {
 		envFilePath := os.Args[1]
 		err := godotenv.Load(envFilePath)

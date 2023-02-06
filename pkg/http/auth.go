@@ -42,19 +42,17 @@ func NewJWTAuthority(privateKeyFilePath, publicKeyFilePath string) (*JWTAuthorit
 	}
 	key, err := jwt.ParseEdPrivateKeyFromPEM(keyBytes)
 	if err != nil {
-		fmt.Println("err1")
 		return nil, err
 	}
 	pubKey, err := jwt.ParseEdPublicKeyFromPEM(pubKeyBytes)
 	if err != nil {
-		fmt.Println("err2")
 		return nil, err
 	}
 	return &JWTAuthority{key, pubKey}, nil
 }
 
-// validateToken checks if given token is valid with our issuer. Returns error when token is invalid.
-func (jwtAuth *JWTAuthority) validateToken(tokenStr string) (*jwt.Token, error) {
+// ValidateToken checks if given token is valid with our issuer. Returns error when token is invalid.
+func (jwtAuth *JWTAuthority) ValidateToken(tokenStr string) (*jwt.Token, error) {
 	if tokenStr == "" {
 		return nil, ErrTokenEmpty
 	}
@@ -73,8 +71,8 @@ func (jwtAuth *JWTAuthority) validateToken(tokenStr string) (*jwt.Token, error) 
 	return token, nil
 }
 
-// issueToken generates a new token for a given event source.
-func (jwtAuth *JWTAuthority) issueToken(requestee string) (string, error) {
+// IssueToken generates a new token for a given event source.
+func (jwtAuth *JWTAuthority) IssueToken(requestee string) (string, error) {
 	claims := eventSourceClaims{
 		requestee,
 		jwt.RegisteredClaims{
