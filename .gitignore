@@ -20,3 +20,5 @@
 # ignore any InfluxDB data stored
 data/*
 !data/.gitkeep
+
+.texpadtmp/
