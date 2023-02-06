@@ -16,3 +16,7 @@
 
 # MacOS specifics
 .DS_Store
+
+# ignore any InfluxDB data stored
+data/*
+!data/.gitkeep

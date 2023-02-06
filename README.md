@@ -1,3 +1,10 @@
+<div align="center">
+  <img src="docs/logtopus.png" width="250" alt="Logtopus logo" />
+  <p align="center">
+  <i>Capture and query service for semi structured data</i>
+  </p>
+</div>
+
 # Logtopus
 
 An application that can capture events and store them. Works with the standard [net/http](https://pkg.go.dev/net/http) library and [InfluxDB](https://www.influxdata.com/). Intended for deployments via [docker](https://docs.docker.com/get-docker/), more precisely [docker-compose](https://docs.docker.com/compose/).
@@ -8,7 +15,7 @@ Clone the repository and run with docker compose:
 
 ```bash
 git clone https://github.com/rubinda/logtopus.git
-cd ./logtopus/deployments && docker compose up
+cd ./logtopus && docker compose up
 ```
 
 ## Usage
@@ -47,8 +54,8 @@ The accepted JSON schema is as follows:
 | field | type | |
 | --- | --- | --- |
 | entityId | string | required |
-| entityType | string | required |
-| eventType | string | optional |
+| eventType | string | required |
+| entityType | string | optional |
 | timestamp | string (RFC3339) | optional - server time used if not provided |
 | details | object | optional - extra fields to store (with some limitations) |
 

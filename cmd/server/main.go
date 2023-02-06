@@ -1,25 +1,40 @@
 package main
 
 import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 	"github.com/rubinda/logtopus/pkg/http"
 	"github.com/rubinda/logtopus/pkg/influxdb"
 )
 
 const (
-	influxURL         = "http://freya:8086/"
-	influxOrg         = "Logtopus"
-	influxBucket      = "auditLog"
-	influxToken       = "ljZbsWKfbZJl-nNB8vNPzWXOZ0UhaH0jDLTwsL_lvHwHcMFccmONuGRoKhRZScZ7EnJjePe-DLMIJvcTPlSp6Q=="
-	apiServerURL      = "localhost:5000"
-	jwtPrivateKeyPath = "configs/jwtKey"
-	jwtPublicKeyPath  = "configs/jwtKey.pub"
+	apiServerURL string = "0.0.0.0:5000"
 )
 
 func main() {
+	if len(os.Args) == 2 {
+		envFilePath := os.Args[1]
+		err := godotenv.Load(envFilePath)
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
+	influxURL := os.Getenv("INFLUXDB_HOST")
+	influxOrg := os.Getenv("DOCKER_INFLUXDB_INIT_ORG")
+	// TODO:
+	//  - using admin token with full access,
+	//    would be wiser to use custom acces management
+	influxToken := os.Getenv("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
+	influxBucket := os.Getenv("DOCKER_INFLUXDB_INIT_BUCKET")
+	jwtPrivateKeyPath := os.Getenv("JWT_PRIVATE_KEY")
+	jwtPublicKeyPath := os.Getenv("JWT_PUBLIC_KEY")
+
 	// Initialize a new authentication handler
 	jwtAuth, err := http.NewJWTAuthority(jwtPrivateKeyPath, jwtPublicKeyPath)
 	if err != nil {
-		panic(err)
+		log.Fatal("can't create a JWT Authority: ", err)
 	}
 	// Ensure a database client
 	influxConf := influxdb.Configuration{

@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - 5000:5000
+    env_file: configs/deploy.env
+  influxdb:
+    image: "influxdb:2.6.1"
+    container_name: influxdb2
+    ports:
+      - 5001:8086
+    volumes:
+      - influx_data:/var/lib/influxdb2
+    env_file: configs/deploy.env
+
+volumes:
+  influx_data:

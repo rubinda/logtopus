@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/influxdata/influxdb-client-go/v2 v2.12.2
+	github.com/joho/godotenv v1.5.0
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 )
 
