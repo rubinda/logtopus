@@ -24,21 +24,21 @@ One can use `cURL` or your favourite API test tool (e.g [Insomnia](https://insom
 
 ### `/auth` <br>
 
-issues tokens for authentication of other endpoints. Currently the user is hardcoded for test purposes.
+issues tokens for authentication of other endpoints. Currently the user is hardcoded for test purposes. Each issued token is valid for 30 minutes.
 
 ```bash
-curl --request POST --url http://localhost:5000/api/v1/auth --header 'Content-Type: application/json' --data '{"user":"johnnyHotbody","pass":"me-llamo-johnny"}'
+curl -k --request POST --url https://localhost:5000/api/v1/auth --header 'Content-Type: application/json' --data '{"user":"johnnyHotbody","pass":"me-llamo-johnny"}'
 ```
 
 ### `/events` <br>
 
-is a sink for storing information about events. Replace `<VALUE>` with actual token from the `auth/` endpoint.
+is a sink for storing information about events. Replace `VALUE` with actual token from the `auth/` endpoint.
 
 ```bash
-curl --request POST \
---url http://localhost:5000/api/v1/events \
+curl -k --request POST \
+--url https://localhost:5000/api/v1/events \
 --header 'Content-Type: application/json' \
---header 'Token: <VALUE>' \
+--header 'Token: VALUE' \
 --data '{
     "entityId": "plexServer001",
     "entityType": "mediaServer",
@@ -62,13 +62,13 @@ The accepted JSON schema is as follows:
 
 ### `/query/events` <br>
 
-allows querying based on field values. Replace `<VALUE>` with actual token from the `auth/` endpoint. Data is a JSON object that contains conditions for returned objects. The `details` wrapper attribute is omitted for non-standard fields.
+allows querying based on field values. Replace `VALUE` with actual token from the `auth/` endpoint. Data is a JSON object that contains conditions for returned objects. The `details` wrapper attribute is omitted for non-standard fields.
 
 ```bash
-curl --request POST \
-  --url http://localhost:5000/api/v1/query/events \
+curl -k --request POST \
+  --url https://localhost:5000/api/v1/query/events \
   --header 'Content-Type: application/json' \
-  --header 'Token: <VALUE>' \
+  --header 'Token: VALUE' \
   --data '{
     "severity": 4,
     "eventType": "downtime"

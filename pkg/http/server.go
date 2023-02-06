@@ -38,6 +38,10 @@ type Configuration struct {
 	JWTKeyPath string
 	// JWTKeyPath is a path to the public key pair.
 	JWTPubKeyPath string
+	// CAKeyPath contains the path to a private server key (TLS)
+	CAKeyPath string
+	// CACertPath contains the path to a server certificate (TLS)
+	CACertPath string
 }
 
 // Server contains methods to handle HTTP requests.
@@ -50,24 +54,24 @@ type Server struct {
 	jwtAuth *JWTAuthority
 }
 
-// NewServer creates a new HTTP(S) server with the given parameters.
-func NewServer(c Configuration, jwtAuth *JWTAuthority) *Server {
-	s := &Server{db: c.DB, jwtAuth: jwtAuth}
+// ListenAndServe creates a new HTTP(S) server with the given parameters and starts listening for incoming connections.
+func ListenAndServe(c Configuration) {
+	// Initialize a new authentication handler
+	jwtAuth, err := NewJWTAuthority(c.JWTKeyPath, c.JWTPubKeyPath)
+	if err != nil {
+		log.Fatal("can't create a JWT Authority: ", err)
+	}
+	server := &Server{db: c.DB, jwtAuth: jwtAuth}
 	mux := http.NewServeMux()
-	mux.HandleFunc(apiBasePath+"/auth", s.authHandler)
-	mux.HandleFunc(apiBasePath+"/events", authMiddleware(jwtAuth, s.eventsHandler))
-	mux.HandleFunc(apiBasePath+"/query/events", authMiddleware(jwtAuth, s.eventsQueryHandler))
-	s.instance = &http.Server{
+	mux.HandleFunc(apiBasePath+"/auth", server.authHandler)
+	mux.HandleFunc(apiBasePath+"/events", authMiddleware(jwtAuth, server.eventsHandler))
+	mux.HandleFunc(apiBasePath+"/query/events", authMiddleware(jwtAuth, server.eventsQueryHandler))
+	server.instance = &http.Server{
 		Addr:         c.Address,
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	return s
-}
-
-// Start runs the server instance to listen for incoming connections. Waits for CTRL-C to initiate a graceful shutdown.
-func (server *Server) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
 	// Listens for shutdown signals (CTRL-C)
 	go func() {
@@ -78,8 +82,8 @@ func (server *Server) Start() {
 	}()
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
-		log.Printf("Server listening on http://%s\n", server.instance.Addr)
-		return server.instance.ListenAndServe()
+		log.Printf("Server listening on https://%s\n", server.instance.Addr)
+		return server.instance.ListenAndServeTLS(c.CACertPath, c.CAKeyPath)
 	})
 	g.Go(func() error {
 		<-gCtx.Done()

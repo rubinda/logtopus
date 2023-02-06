@@ -32,12 +32,12 @@ func main() {
 	influxBucket := os.Getenv("DOCKER_INFLUXDB_INIT_BUCKET")
 	jwtPrivateKeyPath := os.Getenv("JWT_PRIVATE_KEY")
 	jwtPublicKeyPath := os.Getenv("JWT_PUBLIC_KEY")
+	// TODO:
+	//  - uses a self signed certificate, which causes warnings from clients (hence --insecure OR -k is needed for cURL)
+	//	  for actual deployments something like Let's encrypt could be used (https://letsencrypt.org/)
+	caCertFile := os.Getenv("SERVER_CERT_FILE")
+	caKeyFile := os.Getenv("SERVER_KEY_FILE")
 
-	// Initialize a new authentication handler
-	jwtAuth, err := http.NewJWTAuthority(jwtPrivateKeyPath, jwtPublicKeyPath)
-	if err != nil {
-		log.Fatal("can't create a JWT Authority: ", err)
-	}
 	// Ensure a database client
 	influxConf := influxdb.Configuration{
 		ServerURL:    influxURL,
@@ -49,9 +49,12 @@ func main() {
 
 	// Run the http(s) api server
 	httpServerConf := http.Configuration{
-		DB:      influxClient,
-		Address: apiServerURL,
+		DB:            influxClient,
+		Address:       apiServerURL,
+		CAKeyPath:     caKeyFile,
+		CACertPath:    caCertFile,
+		JWTKeyPath:    jwtPrivateKeyPath,
+		JWTPubKeyPath: jwtPublicKeyPath,
 	}
-	server := http.NewServer(httpServerConf, jwtAuth)
-	server.Start()
+	http.ListenAndServe(httpServerConf)
 }

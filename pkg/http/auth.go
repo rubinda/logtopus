@@ -76,7 +76,9 @@ func (jwtAuth *JWTAuthority) IssueToken(requestee string) (string, error) {
 	claims := eventSourceClaims{
 		requestee,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
+			// TODO:
+			//  - tokens shouldn't last this long for security concerns (replay attacks, hijacking etc.)
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)

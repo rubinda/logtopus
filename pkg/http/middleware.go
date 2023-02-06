@@ -3,6 +3,9 @@ package http
 import "net/http"
 
 // authMiddleware ensures a valid token is present before handing the request over to the next handler.
+// TODO:
+//   - based on use case (e.g. IoT devices) a perhaps better approach would be to authenticate each such device with a secret
+//     instead of requiring the device to request an expirable token.
 func authMiddleware(jwtAuth *JWTAuthority, endpointHandler func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header["Token"] == nil {
