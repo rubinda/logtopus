@@ -3,7 +3,6 @@ package influxdb
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/rubinda/logtopus/pkg/parseutils"
@@ -63,7 +62,5 @@ func queryBuilder(params map[string]any, bucket string) (query string) {
 		}
 		query += fmt.Sprintf(` |> filter(fn: (r) => %s)`, fields)
 	}
-
-	log.Print(query)
 	return
 }
