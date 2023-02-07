@@ -1,5 +1,5 @@
 FROM golang:1.19-alpine
-
+# TODO: multi-stage build to minify container size
 WORKDIR /logtopus
 COPY . .
 RUN go mod download

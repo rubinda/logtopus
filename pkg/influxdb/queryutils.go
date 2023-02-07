@@ -36,16 +36,31 @@ func escapeFieldCondition(fieldName string, fieldValue any) string {
 	return fmt.Sprintf("r[%q] == %v", fieldName, encodedValue)
 }
 
+// validateTime makes sure given string is a valid time format (RFC3339).
+func validateTime(timeString string, layout string, defaultValue string) (string, error) {
+	// TODO:
+	//  - ugly hack because any -> string conversion, => PopString method?
+	if timeString == "" || timeString == "<nil>" {
+		return defaultValue, nil
+	}
+	// TODO:
+	//  - InfluxDB accepts -1m or -5d as range strings.
+	//	  for simplicity, I didn't implement checking every possible combination, but this allows query injection
+	return timeString, nil
+}
+
 // queryBuilder provides a way to achieve parametrised queries for InfluxDB OSS.
-func queryBuilder(params map[string]any, bucket string) (query string) {
-	startTime := parseutils.Pop(params, queryRangeStartTag)
-	if startTime == nil {
-		startTime = defaultQueryRangeStart
+func queryBuilder(params map[string]any, bucket string) (query string, err error) {
+	startTime, err := validateTime(fmt.Sprint(parseutils.Pop(params, queryRangeStartTag)), time.RFC3339, defaultQueryRangeStart)
+	if err != nil {
+		return
 	}
-	endTime := parseutils.Pop(params, queryRangeStopTag)
-	if endTime == nil {
-		endTime = time.Now().Format(time.RFC3339)
+	endTime, err := validateTime(fmt.Sprint(parseutils.Pop(params, queryRangeStopTag)), time.RFC3339, time.Now().Format(time.RFC3339))
+	if err != nil {
+		return
 	}
+	// Ignore timestamp field
+	parseutils.Pop(params, TimestampFieldName)
 	query = fmt.Sprintf(`
 	import "influxdata/influxdb/schema"
 	from(bucket: "%s")

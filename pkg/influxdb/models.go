@@ -15,6 +15,8 @@ import (
 const (
 	// MeasurementFieldName is the JSON attribute name for InfluxDB _measurement field.
 	MeasurementFieldName string = "entityType"
+	// TimestampFieldName is the JSON attribute name for InfluxDB _time field.
+	TimestampFieldName string = "timestamp"
 )
 
 var (

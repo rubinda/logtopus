@@ -13,7 +13,7 @@ import (
 
 const (
 	// defaultQueryRangeStart represents lowest possible time value (InfluxDB) and is used when nothing provided.
-	defaultQueryRangeStart = 0
+	defaultQueryRangeStart = "0"
 )
 
 // Client contains methods for database interaction.
@@ -90,7 +90,11 @@ func (c *Client) QueryEvents(queryFields map[string]any) ([]BasicEvent, error) {
 	queryApi := c.influxClient.QueryAPI(c.Org)
 	// TODO:
 	//  - QueryWithParams is currently only supported for InfluxDB Cloud and doesn't support this usecase anyway :(
-	result, err := queryApi.Query(context.Background(), queryBuilder(queryFields, c.Bucket))
+	queryString, err := queryBuilder(queryFields, c.Bucket)
+	if err != nil {
+		return nil, err
+	}
+	result, err := queryApi.Query(context.Background(), queryString)
 	if err != nil {
 		return nil, err
 	}
